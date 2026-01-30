@@ -1,0 +1,36 @@
+-- 1
+SELECT username,birthdate, AGE(birthdate)  FROM db_social_platform.users
+ORDER BY id ASC LIMIT 100
+
+-- 2
+--post senza like
+select * from db_social_platform.posts
+where id not in (
+	SELECT post_id FROM db_social_platform.likes l
+	inner join db_social_platform.posts p on p.id = l.post_id 
+	group by post_id
+	order by post_id
+)
+
+-- 3
+SELECT p.id, count(*) as n_likes FROM db_social_platform.posts p
+left join db_social_platform.likes l on p.id =l.post_id
+group by p.id
+
+
+--4 
+SELECT user_id,COUNT(*) as n_media FROM db_social_platform.medias
+group by user_id
+order by COUNT(*) DESC
+
+--5
+with post_likes as(
+	SELECT post_id,count(*) as n_likes FROM db_social_platform.likes
+	group by post_id
+)
+
+SELECT p.user_id,sum(n_likes) FROM db_social_platform.posts p
+inner join post_likes pl on pl.post_id = p.id
+group by  p.user_id
+
+
