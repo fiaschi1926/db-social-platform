@@ -1,0 +1,52 @@
+SELECT l.post_id,count(*) FROM db_social_platform.posts p
+full outer join db_social_platform.media_post l on l.post_id = p.id
+where p.id is null
+group by l.post_id
+
+
+
+DELETE FROM db_social_platform.likes
+WHERE post_id IN(166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,183,184,185,186,187,189,191);
+
+
+DELETE FROM db_social_platform.media_post
+WHERE post_id IN(166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191);
+
+
+
+
+ALTER TABLE db_social_platform.likes
+ADD FOREIGN KEY (post_id) REFERENCES db_social_platform.posts(id);
+
+ALTER TABLE db_social_platform.media_post
+ADD FOREIGN KEY (post_id) REFERENCES db_social_platform.posts(id);
+
+
+
+
+
+CREATE INDEX idx_likes_user_id
+ON db_social_platform.likes(user_id);
+
+CREATE INDEX idx_media_post_media_id
+ON db_social_platform.media_post(media_id);
+
+CREATE INDEX idx_media_post_post_id
+ON db_social_platform.media_post(post_id);
+
+
+SELECT
+    tablename,
+    indexname,
+    indexdef
+FROM
+    pg_indexes
+WHERE
+    schemaname = 'db_social_platform'
+ORDER BY
+    tablename,
+    indexname;
+
+
+
+

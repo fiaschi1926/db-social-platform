@@ -7,7 +7,7 @@ ORDER BY id ASC LIMIT 100
 select * from db_social_platform.posts
 where id not in (
 	SELECT post_id FROM db_social_platform.likes l
-	inner join db_social_platform.posts p on p.id = l.post_id 
+	inner join db_social_platform.posts p on p.id = l.post_id
 	group by post_id
 	order by post_id
 )
@@ -18,7 +18,7 @@ left join db_social_platform.likes l on p.id =l.post_id
 group by p.id
 
 
---4 
+--4
 SELECT user_id,COUNT(*) as n_media FROM db_social_platform.medias
 group by user_id
 order by COUNT(*) DESC
@@ -32,5 +32,45 @@ with post_likes as(
 SELECT p.user_id,sum(n_likes) FROM db_social_platform.posts p
 inner join post_likes pl on pl.post_id = p.id
 group by  p.user_id
+
+
+--6
+SELECT u.id,count(*) as n_post FROM db_social_platform.posts p
+inner join db_social_platform.users u on u.id = p.user_id
+where EXTRACT(YEAR FROM AGE(birthdate)) >=20 and EXTRACT(YEAR FROM AGE(birthdate))<=30
+group by u.id
+
+
+--7
+with post_n_media as (
+	select p.id as post_id,p.user_id,count(*) as n_media
+	from db_social_platform.posts p
+	inner join db_social_platform.media_post mp on p.id = mp.post_id
+	group by p.id,p.user_id
+)
+
+select
+u.id,count(*) as n_post, sum(p.n_media)
+from db_social_platform.users u
+inner join post_n_media p on u.id = p.user_id
+group by u.id
+
+
+
+--8
+select *  from db_social_platform.posts p
+where tags::jsonb @> '["serata"]'::jsonb;
+
+
+-- 9
+select *  from db_social_platform.posts p
+order by json_array_length(tags) desc;
+
+--10
+select p.user_id,sum(json_array_length(tags)) as summ  from db_social_platform.posts p
+group by p.user_id
+order by summ desc;
+
+
 
 
