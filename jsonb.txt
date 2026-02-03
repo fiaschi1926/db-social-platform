@@ -1,0 +1,56 @@
+Ragionare sull’indice (GIN generico o jsonb_path_ops)
+
+Ragionare sull’indice.
+Popolare la tabella manualmente (o generando dati casuali random/md5 e iterando con generate_series).
+Fare query e viste su quei campi.
+Creare vista che mostra l’elenco degli utenti con darkMode: true.
+
+
+
+
+1) conversione jsonb
+    ALTER TABLE db_social_platform.posts
+    ALTER COLUMN tags TYPE jsonb;
+
+2) Recuperare tutti i media che hanno il tag "relax".
+    with post_relax as(
+        SELECT * FROM db_social_platform.posts p
+        where  ( tags @> '["relax"]' )
+    )
+
+    SELECT m.*,p.tags  FROM db_social_platform.medias m
+    inner join db_social_platform.media_post mp on m.id = mp.media_id
+    inner join post_relax p on p.id=mp.post_id
+
+3) BONUS
+    CREATE VIEW db_social_platform.v_tags AS
+    SELECT DISTINCT
+        t.tag
+    FROM db_social_platform.posts p
+    CROSS JOIN LATERAL jsonb_array_elements_text(p.tags) AS t(tag)
+    WHERE p.tags IS NOT NULL;
+
+
+
+4)Aggiungere nuovo campo JSONB oggetto tabella users
+    ALTER TABLE db_social_platform.users
+    ADD data jsonb;
+
+5)Popolare la tabella manualmente
+
+    update db_social_platform.users
+    set data = '{"dark_mode":false}'
+
+    update db_social_platform.users
+    set data = '{"dark_mode":true}'
+    where id = 1 or id=2
+
+6)
+
+CREATE VIEW db_social_platform.v_dark_mode_users AS
+SELECT * FROM db_social_platform.users u
+where  ( data @> '{"dark_mode":true}' )
+ORDER BY id ASC
+
+
+
